@@ -7,8 +7,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geopoint/geopoint.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:native_exif/native_exif.dart';
-import 'package:strive/userForm.dart';
-import 'package:strive/values.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart';
+import 'package:auresia/launchScreen.dart';
+import 'package:auresia/location_service.dart';
+import 'package:auresia/values.dart';
 import 'transitionAnimation.dart';
 
 class HomePage extends StatefulWidget {
@@ -45,36 +48,16 @@ class _HomePageState extends State<HomePage> {
 
   bool loading = false;
 
+  var items = [
+    'Logout',
+  ];
+
   Future<void> callBack() async {
     await _getCurrentPosition();
     setState(() {
       initialLat = lat;
       initialLong = long;
     });
-    // AndroidBatteryInfo? batteryData =
-    //     await BatteryInfoPlugin().androidBatteryInfo;
-    // Map<String, dynamic> formData = {
-    //   "user_id": userid,
-    //   "battery_percentage": batteryData!.batteryLevel,
-    //   "battery_status": batteryData.health.toString(),
-    //   "lat": lat,
-    //   "long": long,
-    //   "sample_time": DateTime.now().millisecondsSinceEpoch ~/ 1000,
-    // };
-
-    // try {
-    //   await Dio().post("$url/location",
-    //       data: formData, options: Options(contentType: "application/json"));
-    // } on DioException {
-    //   alertDialogCall("Error",
-    //       "We are facing some issues Sorry Please try again after sometime");
-    // }
-    // debugPrint("Hello World");
-    // Workmanager()
-    //     .registerOneOffTask("uniqueName", "Back-UP")
-    //     .then((value) => Timer(const Duration(seconds: 18), () async {
-    //           callBack();
-    //         }));
   }
 
   @override
@@ -144,8 +127,8 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => AlertDialog(
         title: Text(
           title,
-          style: const TextStyle(
-            fontSize: 18.0,
+          style: TextStyle(
+            fontSize: 14.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -153,7 +136,7 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.all(Radius.circular(10.0))),
         content: Text(
           content,
-          style: const TextStyle(fontSize: 14.0),
+          style: TextStyle(fontSize: 11.sp),
         ),
         actions: <Widget>[
           TextButton(
@@ -162,11 +145,77 @@ class _HomePageState extends State<HomePage> {
             },
             child: Container(
               color: Colors.white,
-              // padding: const EdgeInsets.all(14),
-              child: const Text(
+              child: Text(
                 "Okay",
                 style: TextStyle(
                   color: Colors.black,
+                  fontSize: 10.sp,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  alertLogoutCall() {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          "Alert",
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0))),
+        content: Text(
+          "Are you sure you want to logout?",
+          style: TextStyle(fontSize: 11.sp),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: Container(
+              color: Colors.white,
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 10.sp,
+                ),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final LocationService _locationService = LocationService();
+              SharedPreferences _prefs = await SharedPreferences.getInstance();
+              await _prefs.remove(spUserId);
+              await _prefs.remove(sppassword);
+              userId = 0;
+              password = '';
+              checkUID = false;
+              setState(() {});
+              await _prefs.reload();
+              if (Platform.isIOS) await _locationService.stopLocationService();
+              Navigator.of(context).pushAndRemoveUntil(
+                FadeRoute(page: const LaunchScreen()),
+                (route) => false,
+              );
+            },
+            child: Container(
+              color: Colors.white,
+              child: Text(
+                "Okay",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 10.sp,
                 ),
               ),
             ),
@@ -178,6 +227,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget imageButton(String text1, int val) {
     return Container(
+      width: MediaQuery.of(context).size.width,
       decoration: const BoxDecoration(
         color: Color(0xFFEFEFF0),
         borderRadius: BorderRadius.all(
@@ -192,13 +242,14 @@ class _HomePageState extends State<HomePage> {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           onTap: () => val == 0 ? pickImage(0) : pickImage(1),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 30.0),
+            padding: EdgeInsets.symmetric(vertical: 3.75.h),
             child: Text(
               text1,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: 11.sp,
                 color: Color(0xFF585858),
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -223,13 +274,13 @@ class _HomePageState extends State<HomePage> {
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           onTap: loading && text1 == "SUBMIT" ? () {} : call,
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 21.0),
+            padding: EdgeInsets.symmetric(vertical: 2.5.h),
             child: Center(
               child: loading && text1 == "SUBMIT"
-                  ? const SizedBox(
-                      height: 20.0,
-                      width: 20.0,
-                      child: CircularProgressIndicator(
+                  ? SizedBox(
+                      height: 6.3.w,
+                      width: 6.3.w,
+                      child: const CircularProgressIndicator(
                         color: Colors.black,
                         strokeWidth: 2.5,
                       ),
@@ -237,9 +288,9 @@ class _HomePageState extends State<HomePage> {
                   : Text(
                       text1,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF585858),
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: const Color(0xFF585858),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -251,151 +302,83 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget stressButton(String text1, int index) {
-    return FittedBox(
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(8),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(
+              Radius.circular(8),
+            ),
+            border: Border.all(
+              width: 1.0,
+              color: Colors.black,
+            ),
           ),
-          border: Border.all(
-            width: 1.0,
-            color: Colors.black,
-          ),
-        ),
-        child: Material(
-          elevation: 4.0,
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-          child: InkWell(
+          child: Material(
+            elevation: 4.0,
             borderRadius: const BorderRadius.all(Radius.circular(8)),
-            onTap: () {
-              setState(() {
-                selectedVal = index + 1;
-              });
-            },
-            child: Container(
-              width: 38.0,
-              height: 38.0,
-              decoration: BoxDecoration(
-                color: selectedVal == index + 1
-                    ? const Color(0xFF89E3F0).withOpacity(0.39)
-                    : Colors.white,
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(8),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    text1,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFF585858),
-                      fontWeight: FontWeight.bold,
-                    ),
+            child: InkWell(
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              onTap: () {
+                setState(() {
+                  selectedVal = index + 1;
+                });
+              },
+              child: Container(
+                width: 5.h,
+                height: 5.h,
+                decoration: BoxDecoration(
+                  color: selectedVal == index + 1
+                      ? const Color(0xFFC7C7FF)
+                      : Colors.white,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(8),
                   ),
-                  text1 == "1"
-                      ? const Text(
-                          "Low",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFF585858),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : const SizedBox(),
-                  text1 == "7"
-                      ? const Text(
-                          "High",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFF585858),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : const SizedBox(),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  passAlertDialog(String title) {
-    var formKey = GlobalKey<FormState>();
-    return showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10.0))),
-        content: Form(
-          key: formKey,
-          child: TextFormField(
-            controller: pass,
-            validator: (text) {
-              if (text != password) {
-                return "Wrong Password";
-              }
-              return null;
-            },
-            decoration: const InputDecoration(hintText: "Enter Password"),
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              setState(() {
-                pass.clear();
-              });
-              Navigator.of(ctx).pop();
-            },
-            child: Container(
-              color: Colors.white,
-              // padding: const EdgeInsets.all(14),
-              child: const Text(
-                "Cancel",
-                style: TextStyle(
-                  color: Colors.black,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      text1,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Color(0xFF585858),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          TextButton(
-            onPressed: () {
-              final form = formKey.currentState;
-              if (form!.validate()) {
-                if (pass.text == password) {
-                  Navigator.of(ctx).pop();
-                  Navigator.of(context).push(FadeRoute(page: const UserForm()));
-                }
-              }
-            },
-            child: Container(
-              color: Colors.white,
-              // padding: const EdgeInsets.all(14),
-              child: const Text(
-                "Okay",
-                style: TextStyle(
-                  color: Colors.black,
-                ),
-              ),
+        ),
+        SizedBox(
+          height: 0.75.h,
+        ),
+        if (text1 == "1")
+          Text(
+            "Low",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: Color(0xFF585858),
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ],
-      ),
+        if (text1 == "7")
+          Text(
+            "High",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: Color(0xFF585858),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+      ],
     );
   }
 
@@ -408,375 +391,406 @@ class _HomePageState extends State<HomePage> {
         },
         child: Container(
           height: MediaQuery.of(context).size.height,
-          color: const Color(0xFFD7F3F9),
+          color: const Color(0xFFE6E6FA),
           child: Scrollbar(
             thickness: 10.0,
             child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               physics: const BouncingScrollPhysics(),
               children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 10.0, top: 10.0),
-                    child: Container(
-                      width: 35.0,
-                      height: 35.0,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                        color: Colors.white,
+                SizedBox(
+                  height: 2.5.h,
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 8.w),
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.power_settings_new,
+                          color: Colors.transparent,
+                          size: 3.5.h,
+                        ),
                       ),
-                      child: Material(
-                        color: Colors.white,
-                        elevation: 4.0,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(50.0)),
-                        child: InkWell(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(8)),
-                          onTap: () {
-                            passAlertDialog("Password");
-                          },
-                          child: const Icon(
-                            Icons.settings,
-                            size: 28.0,
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            "AURESIA",
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                const Center(
-                  child: Text(
-                    "Stress Journal",
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 5.0),
-                  child: Text(
-                    "Please take a picture of the area where you experienced stress",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-                !imageSelected
-                    ? Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 17.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 10,
-                              child: imageButton("Choose From\nGallery", 0),
-                            ),
-                            const Expanded(child: SizedBox()),
-                            Expanded(
-                                flex: 10, child: imageButton("Take\nPhoto", 1)),
-                          ],
-                        ),
-                      )
-                    : Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(120.0, 0.0, 120.0, 17.0),
-                        child: Stack(
-                          children: [
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10.0),
-                                child: Material(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(10.0)),
-                                  child: InkWell(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(10.0)),
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        PageRouteBuilder(
-                                          opaque: false,
-                                          barrierDismissible: true,
-                                          pageBuilder:
-                                              (BuildContext context, _, __) {
-                                            return Hero(
-                                              tag: "zoom",
-                                              child: Material(
-                                                color: Colors.black
-                                                    .withOpacity(0.9),
-                                                child: InkWell(
-                                                    onTap: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child: Image.file(image!)),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    child: Hero(
-                                      tag: "zoom",
-                                      child: Image.file(
-                                        image!,
-                                        fit: BoxFit.fitWidth,
-                                        width: 100.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Container(
-                                height: 30.0,
-                                width: 30.0,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius:
-                                      BorderRadiusDirectional.circular(20.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 5,
-                                      blurRadius: 7,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Material(
-                                  elevation: 4.0,
-                                  color: Colors.white,
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(20.0)),
-                                  child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        image = null;
-                                        imageSelected = !imageSelected;
-                                      });
-                                    },
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(20.0)),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.close,
-                                        size: 20.0,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 5.0),
-                  child: Text(
-                    "Select your Stress Level",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 17.0),
-                  child: SizedBox(
-                    height: 40.0,
-                    child: Center(
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 7,
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const SizedBox(
-                          width: 5.0,
-                        ),
-                        itemBuilder: (BuildContext context, int index) {
-                          return stressButton((index + 1).toString(), index);
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 5.0),
-                  child: Text(
-                    "Please discuss what is causing you stress",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 17.0),
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      color: Colors.white,
-                    ),
-                    child: TextField(
-                      maxLines: 3,
-                      textInputAction: TextInputAction.done,
-                      controller: q2,
-                      decoration: const InputDecoration(
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                        ),
-                        hintText: 'Type Here',
-                      ),
-                    ),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 5.0),
-                  child: Text(
-                    "Please discuss how you are responding to this situation or how you will respond to this situation",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 17.0),
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      color: Colors.white,
-                    ),
-                    child: TextField(
-                      maxLines: 3,
-                      controller: q3,
-                      decoration: const InputDecoration(
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                        ),
-                        hintText: 'Type Here',
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15.0, 0.0, 15.0, 0.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 10,
-                        child: endButtons(
-                          "RESET",
-                          () async {
-                            setState(() {
-                              q2.clear();
-                              q3.clear();
-                              selectedVal = 0;
-                              imageSelected = false;
-                              image = null;
-                              imageLat = 0.0;
-                              imageLong = 0.0;
-                              startTime =
-                                  (DateTime.now().millisecondsSinceEpoch ~/
-                                      1000);
-                            });
-                            await _getCurrentPosition();
-                            setState(() {
-                              initialLat = lat;
-                              initialLong = long;
-                            });
+                      Container(
+                        margin: EdgeInsets.only(right: 8.w),
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () async {
+                            alertLogoutCall();
                           },
-                        ),
-                      ),
-                      const Expanded(child: SizedBox()),
-                      Expanded(
-                        flex: 10,
-                        child: endButtons(
-                          "SUBMIT",
-                          () async {
-                            setState(() {
-                              loading = true;
-                            });
-                            if (q2.text == "" ||
-                                q3.text == "" ||
-                                selectedVal == 0) {
-                              alertDialogCall("Error",
-                                  "Please complete all elements of the survey before submitting. Image/Photo is not required.");
-                            } else {
-                              await _getCurrentPosition();
-                              FormData formData = FormData.fromMap({
-                                "stress_level": selectedVal,
-                                "cause": q2.text,
-                                "situation": q3.text,
-                                "image": image == null
-                                    ? MultipartFile.fromString(
-                                        "",
-                                        filename: "",
-                                      )
-                                    : await MultipartFile.fromFile(
-                                        image!.path,
-                                        filename: fileName,
-                                      ),
-                                "start_time": startTime,
-                                "end_time":
-                                    DateTime.now().millisecondsSinceEpoch ~/
-                                        1000,
-                                "user_id": userid,
-                                "stress_lat": initialLat,
-                                "stress_long": initialLong,
-                                "image_lat": imageLat,
-                                "image_long": imageLong,
-                                "submitted_lat": lat,
-                                "submitted_long": long,
-                                "status": "SUBMITTED"
-                              });
-                              Dio dio = Dio();
-                              await dio
-                                  .post(
-                                "$url/survey",
-                                data: formData,
-                              )
-                                  .then((response) {
-                                alertDialogCall("Success",
-                                        "You have successfully submitted the form")
-                                    .then((value) async {
-                                  setState(() {
-                                    q2.clear();
-                                    q3.clear();
-                                    selectedVal = 0;
-                                    imageSelected = false;
-                                    image = null;
-                                    imageLat = 0.0;
-                                    imageLong = 0.0;
-                                    startTime = (DateTime.now()
-                                            .millisecondsSinceEpoch ~/
-                                        1000);
-                                  });
-                                  await _getCurrentPosition();
-                                  setState(() {
-                                    initialLat = lat;
-                                    initialLong = long;
-                                  });
-                                });
-                              }).catchError((error) => alertDialogCall("Error",
-                                      "We are facing some issues Sorry Please try again after sometime"));
-                            }
-                            setState(() {
-                              loading = false;
-                            });
-                          },
+                          child: Icon(
+                            Icons.logout,
+                            color: Colors.black,
+                            size: 3.5.h,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 20.0,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0, 1.h, 0, 0.75.h),
+                        child: Text(
+                          "Please take a picture of the area where you experienced stress",
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ),
+                      !imageSelected
+                          ? Padding(
+                              padding: EdgeInsets.fromLTRB(0, 0.0, 0, 2.h),
+                              child: imageButton("Take Photo", 1),
+                            )
+                          : Padding(
+                              padding:
+                                  EdgeInsets.fromLTRB(30.w, 0.0, 30.w, 2.h),
+                              child: Stack(
+                                children: [
+                                  Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      child: Material(
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(10.0),
+                                        ),
+                                        child: InkWell(
+                                          borderRadius: const BorderRadius.all(
+                                            Radius.circular(10.0),
+                                          ),
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              PageRouteBuilder(
+                                                opaque: false,
+                                                barrierDismissible: true,
+                                                pageBuilder:
+                                                    (BuildContext context, _,
+                                                        __) {
+                                                  return Hero(
+                                                    tag: "zoom",
+                                                    child: Material(
+                                                      color: Colors.black
+                                                          .withOpacity(0.9),
+                                                      child: InkWell(
+                                                          onTap: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                          child: Image.file(
+                                                              image!)),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          },
+                                          child: Hero(
+                                            tag: "zoom",
+                                            child: Image.file(
+                                              image!,
+                                              fit: BoxFit.cover,
+                                              width: 28.w,
+                                              height: 16.h,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: Container(
+                                      height: 2.5.h,
+                                      width: 2.5.h,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadiusDirectional.circular(
+                                                20.0),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 5,
+                                            blurRadius: 7,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Material(
+                                        elevation: 4.0,
+                                        color: Colors.white,
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(20.0),
+                                        ),
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              image = null;
+                                              imageSelected = !imageSelected;
+                                            });
+                                          },
+                                          borderRadius: const BorderRadius.all(
+                                            Radius.circular(20.0),
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.close,
+                                              size: 1.5.h,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0.0, 0, 0.75.h),
+                        child: Text(
+                          "Select your Stress Level",
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0.0, 0, 1.h),
+                        child: SizedBox(
+                          height: 9.5.h,
+                          child: Center(
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: 7,
+                              separatorBuilder:
+                                  (BuildContext context, int index) => SizedBox(
+                                width: 1.5.w,
+                              ),
+                              itemBuilder: (BuildContext context, int index) {
+                                return stressButton(
+                                    (index + 1).toString(), index);
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0.0, 0, 0.75.h),
+                        child: Text(
+                          "Please discuss what is causing you stress",
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0.0, 0, 2.h),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5.0),
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: TextField(
+                            maxLines: 3,
+                            textInputAction: TextInputAction.next,
+                            controller: q2,
+                            style: TextStyle(fontSize: 12.sp),
+                            decoration: InputDecoration(
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(5.0),
+                                ),
+                              ),
+                              hintText: 'Type Here',
+                              hintStyle: TextStyle(
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0.0, 0, 0.75.h),
+                        child: Text(
+                          "Please discuss how you are responding to this situation or how you will respond to this situation",
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0.0, 0, 2.h),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(5.0),
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: TextField(
+                            maxLines: 3,
+                            controller: q3,
+                            style: TextStyle(fontSize: 12.sp),
+                            decoration: InputDecoration(
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(5.0),
+                                ),
+                              ),
+                              hintText: 'Type Here',
+                              hintStyle: TextStyle(
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          // Expanded(
+                          //   flex: 10,
+                          //   child: endButtons(
+                          //     "RESET",
+                          //     () async {
+                          //       setState(() {
+                          //         q2.clear();
+                          //         q3.clear();
+                          //         selectedVal = 0;
+                          //         imageSelected = false;
+                          //         image = null;
+                          //         imageLat = 0.0;
+                          //         imageLong = 0.0;
+                          //         startTime =
+                          //             (DateTime.now().millisecondsSinceEpoch ~/
+                          //                 1000);
+                          //       });
+                          //       await _getCurrentPosition();
+                          //       setState(() {
+                          //         initialLat = lat;
+                          //         initialLong = long;
+                          //       });
+                          //     },
+                          //   ),
+                          // ),
+                          // const Expanded(child: SizedBox()),
+                          Expanded(
+                            // flex: 10,
+                            child: endButtons(
+                              "SUBMIT",
+                              () async {
+                                setState(() {
+                                  loading = true;
+                                });
+                                if (q2.text == "" ||
+                                    q3.text == "" ||
+                                    selectedVal == 0) {
+                                  alertDialogCall("Error",
+                                      "Please complete all elements of the survey before submitting. Photo is not required.");
+                                } else {
+                                  await _getCurrentPosition();
+                                  FormData formData = FormData.fromMap({
+                                    "stress_level": selectedVal,
+                                    "cause": q2.text,
+                                    "situation": q3.text,
+                                    "image": image == null
+                                        ? MultipartFile.fromString(
+                                            "",
+                                            filename: "",
+                                          )
+                                        : await MultipartFile.fromFile(
+                                            image!.path,
+                                            filename: fileName,
+                                          ),
+                                    "start_time": startTime,
+                                    "end_time":
+                                        DateTime.now().millisecondsSinceEpoch ~/
+                                            1000,
+                                    "user_id": userId,
+                                    "stress_lat": initialLat,
+                                    "stress_long": initialLong,
+                                    "image_lat": imageLat,
+                                    "image_long": imageLong,
+                                    "submitted_lat": lat,
+                                    "submitted_long": long,
+                                    "status": "SUBMITTED"
+                                  });
+                                  await Dio()
+                                      .post(
+                                    "$url/surveys",
+                                    data: formData,
+                                  )
+                                      .then((response) {
+                                    alertDialogCall("Success",
+                                            "You have successfully submitted the form")
+                                        .then((value) async {
+                                      setState(() {
+                                        q2.clear();
+                                        q3.clear();
+                                        selectedVal = 0;
+                                        imageSelected = false;
+                                        image = null;
+                                        imageLat = 0.0;
+                                        imageLong = 0.0;
+                                        startTime = (DateTime.now()
+                                                .millisecondsSinceEpoch ~/
+                                            1000);
+                                      });
+                                      await _getCurrentPosition();
+                                      setState(() {
+                                        initialLat = lat;
+                                        initialLong = long;
+                                      });
+                                    });
+                                  }).catchError((error) {
+                                    print(error);
+                                    setState(() {
+                                      loading = false;
+                                    });
+                                    alertDialogCall("Error",
+                                        "We are facing some issues Sorry Please try again after sometime");
+                                  });
+                                }
+                                setState(() {
+                                  loading = false;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 2.5.h,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

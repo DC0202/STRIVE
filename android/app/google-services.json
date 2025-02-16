@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "173047518882",
+    "project_id": "auresia-notification",
+    "storage_bucket": "auresia-notification.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173047518882:android:8bfc68701a1018b8e3e9fb",
+        "android_client_info": {
+          "package_name": "edu.iu.jordan.strive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBynxXYe5ZSu6qe9oFNYdKlsWiRZosAEgw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

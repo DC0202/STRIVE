@@ -1,4 +1,4 @@
-package com.example.strive
+package edu.iu.jordan.strive
 
 import io.flutter.embedding.android.FlutterActivity
 

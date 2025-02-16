@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDmgo3Mm-HZWcz7cBpSTkaomEoXvkaXUKk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>173047518882</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.strive</string>
+	<key>PROJECT_ID</key>
+	<string>auresia-notification</string>
+	<key>STORAGE_BUCKET</key>
+	<string>auresia-notification.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:173047518882:ios:8d7506c4d5c421f9e3e9fb</string>
+</dict>
+</plist>

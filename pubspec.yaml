@@ -1,5 +1,5 @@
-name: strive
-description: A new Flutter project.
+name: auresia
+description: stress management.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.0+4
 
 environment:
   sdk: '>=3.0.2 <4.0.0'
@@ -36,17 +36,20 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   geolocator: ^9.0.2
+  location: ^7.0.0
   image_picker: ^0.8.8
   dio: ^5.2.1+1
   native_exif: ^0.4.1
   permission_handler: ^10.3.0
   geopoint: ^1.0.0
   disable_battery_optimization: ^1.1.0+1
-  battery_info: ^1.1.1
   shared_preferences: ^2.1.2
-  open_settings: ^2.0.2
   flutter_background_service: ^3.0.1
-  flutter_local_notifications: ^14.1.1
+  flutter_local_notifications: ^17.2.2
+  sizer: ^2.0.15
+  mobile_device_identifier: ^0.0.2
+  firebase_core: ^3.5.0
+  firebase_messaging: ^15.1.2
 
 dev_dependencies:
   flutter_test:
@@ -71,8 +74,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

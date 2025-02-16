@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:strive/homePage.dart';
-import 'package:strive/transitionAnimation.dart';
-import 'package:strive/values.dart';
+import 'package:sizer/sizer.dart';
+import 'package:auresia/homePage.dart';
+import 'package:auresia/transitionAnimation.dart';
+import 'package:auresia/values.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,21 +18,24 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool initialize = true;
   funCall() async {
-    await askPermission();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
         initialize = !initialize;
-        userid = prefs.getInt(spUserId)!;
-        imei = prefs.getString(spImeiNo)!;
-        email = prefs.getString(spEmail)!;
+        userId = prefs.getInt(spUserId)!;
       });
     }
+    await askPermission();
   }
 
   Future<bool> askPermission() async {
-    await Permission.phone.request();
-    await Permission.location.request();
+    if (Platform.isAndroid) {
+      await Permission.phone.request();
+      await Permission.location.request();
+    } else if (Platform.isIOS) {
+      await Permission.locationWhenInUse.request();
+      await Permission.locationAlways.request();
+    }
     await Permission.notification.request();
     await Permission.locationAlways.request();
     return true;
@@ -42,8 +47,10 @@ class _SplashScreenState extends State<SplashScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await funCall();
       Timer(const Duration(seconds: 2), () {
-        Navigator.of(context)
-            .pushReplacement(FadeRoute(page: const HomePage()));
+        Navigator.of(context).pushAndRemoveUntil(
+          FadeRoute(page: const HomePage()),
+          (route) => false,
+        );
       });
     });
   }
@@ -51,22 +58,23 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFD7F3F9),
-      body: initialize
+      backgroundColor: const Color(0xFFE6E6FA),
+      body: !initialize
           ? const Center(
               child: CircularProgressIndicator(
-              color: Colors.white,
-            ))
+                color: Colors.white,
+              ),
+            )
           : Container(
-              color: const Color(0xFFD7F3F9),
+              color: const Color(0xFFE6E6FA),
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'S.T.R.I.V.E.',
+                  'AURESIA',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 40.0,
+                    fontSize: 36.sp,
                   ),
                 ),
               ),
